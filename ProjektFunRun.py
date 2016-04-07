@@ -4,25 +4,51 @@ SIRINA_EKRANA = 800
 VISINA_EKRANA = 600
 
 class Medo(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, ovire = None):
         super().__init__()
-        sirina = 40
-        visina = 60
-        self.image = pygame.Surface((sirina,visina))
-        self.image.fill((200,0,0))
+        self.ovire = ovire
+        sirina = 87
+        visina = 123
+        self.image = pygame.Surface((sirina,visina), pygame.SRCALPHA)
+        #self.image.fill((200,0,0))
         self.rect = self.image.get_rect()
-        self.hitrost_y = 0
+        self.images = pygame.image.load("papiga1.png")
 
+        
+        self.hitrost_y = 0
+        self.nastavi_sliko()
+
+        
+    def nastavi_sliko(self):
+        self.image.fill((0, 0, 0, 0))
+        self.image.blit(self.images, (0, 0),(0, 0, 87, 123))
+
+            
     def skok(self):
-        self.hitrost_y -= 5
+        self.hitrost_y -= 10
+
+        trki = pygame.sprite.spritecollide(self, self.ovire, False)
+        if len(trki):
+            self.hitrost_y = -10
+
 
     def update(self):
-        self.hitrost_y +=0.1
+        
+        self.hitrost_y +=0.3
         self.rect.y += self.hitrost_y
        ## self.rect.y %= VISINA_EKRANA
+        if self.ovire:
+            trki = pygame.sprite.spritecollide(self, self.ovire, False)
+            for ovira in trki:
+                if self.hitrost_y < 0:
+                    self.rect.top = ovira.rect.bottom
+                if self.hitrost_y > 0:
+                    self.rect.bottom = ovira.rect.top
+                self.hitrost_y = 0
 
 
-class Level(pygame.sprite.Sprite):
+        
+class level(pygame.sprite.Sprite):
     def __init__(self, x, y, s, v):
         super().__init__()
         self.image = pygame.Surface((s, v))
@@ -36,10 +62,10 @@ def main():
     ekran = pygame.display.set_mode([SIRINA_EKRANA, VISINA_EKRANA])
 
     tla = pygame.sprite.Group()
-    tla.add(Level(0,500,800,100))
+    tla.add(level(0,500,800,100))
 
     ljudje = pygame.sprite.Group()
-    papiga = Medo()
+    papiga = Medo(tla)
     ljudje.add(papiga)
 
     konec_zanke = False
