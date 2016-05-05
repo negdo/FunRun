@@ -3,20 +3,23 @@ import pygame
 SIRINA_EKRANA = 800
 VISINA_EKRANA = 600
 
+HITROST = 4
 class Medo(pygame.sprite.Sprite):
     def __init__(self, ovire = None):
+        
         super().__init__()
         self.ovire = ovire
-        sirina = 87
-        visina = 123
+        sirina = 72
+        visina = 109
         self.image = pygame.Surface((sirina,visina), pygame.SRCALPHA)
         #self.image.fill((200,0,0))
         self.rect = self.image.get_rect()
-        self.images = pygame.image.load("papiga1.png")
-
+        self.rect.x = 100
+        self.images = pygame.image.load("papiga2.png")
+       
         
         self.hitrost_y = 0
-        self.nastavi_sliko()
+        self.nastavi_sliko()        
 
         
     def nastavi_sliko(self):
@@ -25,16 +28,24 @@ class Medo(pygame.sprite.Sprite):
 
             
     def skok(self):
-        self.hitrost_y -= 10
-
+        self.rect.y += 2
         trki = pygame.sprite.spritecollide(self, self.ovire, False)
+        self.rect.y -= 2
         if len(trki):
             self.hitrost_y = -10
 
 
     def update(self):
-        
-        self.hitrost_y +=0.3
+
+        if self.ovire:
+            trki = pygame.sprite.spritecollide(self, self.ovire, False)
+
+            for ovira in trki:
+                diff = self.rect.right - ovira.rect.left
+                for ov in self.ovire:
+                    ov.rect.x += diff
+            
+        self.hitrost_y +=0.4
         self.rect.y += self.hitrost_y
        ## self.rect.y %= VISINA_EKRANA
         if self.ovire:
@@ -46,9 +57,9 @@ class Medo(pygame.sprite.Sprite):
                     self.rect.bottom = ovira.rect.top
                 self.hitrost_y = 0
 
-
         
 class level(pygame.sprite.Sprite):
+    
     def __init__(self, x, y, s, v):
         super().__init__()
         self.image = pygame.Surface((s, v))
@@ -57,13 +68,20 @@ class level(pygame.sprite.Sprite):
         self.rect.y = y
         self.image.fill((50,150,50))
 
+    def update(self):
+        self.rect.x -= HITROST
+
+        
+
+        
 
 def main():
+    global skoki
     ekran = pygame.display.set_mode([SIRINA_EKRANA, VISINA_EKRANA])
-
+    premik = 1
+    
     tla = pygame.sprite.Group()
-    tla.add(level(0,500,800,100))
-
+    tla.add(level(0,500,8000,100), level(500, 400, 200, 100), level(900, 400, 200, 100), level(1200, 300, 200, 50), level(1500, 300, 200, 50))
     ljudje = pygame.sprite.Group()
     papiga = Medo(tla)
     ljudje.add(papiga)
@@ -74,13 +92,16 @@ def main():
         ura.tick(60)
         for dogodek in pygame.event.get():
             if dogodek.type == pygame.KEYDOWN:
+                
                 if dogodek.key == pygame.K_UP:
                     papiga.skok()
+                    
 
         #Fizika
         ljudje.update()
+        tla.update()
         #Risanje
-        ekran.fill((0,0,200))
+        ekran.fill((100,180,230))
         tla.draw(ekran)
         ljudje.draw(ekran)
         pygame.display.flip()
