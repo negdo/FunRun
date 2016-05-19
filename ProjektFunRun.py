@@ -16,8 +16,9 @@ class Medo(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 100
         self.images = pygame.image.load("papiga2.png")
+
        
-        
+        self.hitrost_x = 0
         self.hitrost_y = 0
         self.nastavi_sliko()        
 
@@ -35,15 +36,36 @@ class Medo(pygame.sprite.Sprite):
             self.hitrost_y = -10
 
 
+
+
+    def levo(self):
+        self.hitrost_x = -3
+
+    def desno(self):
+        self.hitrost_x = 3
+
+    def stop(self):
+        self.hitrost_x = 0
+
+
+        
+
+        
+
     def update(self):
+
+        self.rect.x += self.hitrost_x
 
         if self.ovire:
             trki = pygame.sprite.spritecollide(self, self.ovire, False)
             for ovira in trki:
                 diff = self.rect.right - ovira.rect.left
                 for ov in self.ovire:
-                    if ov.premika:
-                        ov.rect.x += diff
+                    if ov.premika:                       
+                        self.hitrost_x = 0
+                        self.rect.x -= 0.2
+                        
+                        #ov.rect.x += diff
             
         self.hitrost_y +=0.4
         self.rect.y += self.hitrost_y
@@ -105,8 +127,7 @@ def main():
         level(500, 400, 200, 90, 2000),
         level(900, 400, 200, 90, 2000),
         level(1300, 300, 200, 50),
-        level(1600, 300, 200, 50),
-        level(2000, 200, 400, 290))
+        level(1600, 300, 200, 50))
     ljudje = pygame.sprite.Group()
     papiga = Medo(tla)
     ljudje.add(papiga)
@@ -116,11 +137,27 @@ def main():
     while not konec_zanke:
         ura.tick(60)
         for dogodek in pygame.event.get():
-            if dogodek.type == pygame.KEYDOWN:
+            if dogodek.type == pygame.QUIT:
+                konec_zanke = True
+                
+            elif dogodek.type == pygame.KEYDOWN:
                 
                 if dogodek.key == pygame.K_UP:
                     papiga.skok()
-                    
+                elif dogodek.key == pygame.K_LEFT:
+                    papiga.levo()
+                elif dogodek.key == pygame.K_RIGHT:
+                    papiga.desno()
+
+            elif dogodek.type == pygame.KEYUP:
+                if dogodek.key == pygame.K_LEFT:
+                    papiga.stop()
+                elif dogodek.key == pygame.K_RIGHT:
+                    papiga.stop()
+
+        if papiga.rect.x < 0:
+            konec_zanke = True
+        
 
         #Fizika
         ljudje.update()
@@ -130,6 +167,7 @@ def main():
         tla.draw(ekran)
         ljudje.draw(ekran)
         pygame.display.flip()
+    pygame.quit()        
         
         
 
