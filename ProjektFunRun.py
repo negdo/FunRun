@@ -12,7 +12,6 @@ class Medo(pygame.sprite.Sprite):
         sirina = 72
         visina = 109
         self.image = pygame.Surface((sirina,visina), pygame.SRCALPHA)
-        #self.image.fill((200,0,0))
         self.rect = self.image.get_rect()
         self.rect.x = 100
         self.images = pygame.image.load("papiga2.png")
@@ -82,6 +81,30 @@ class Medo(pygame.sprite.Sprite):
                     self.rect.bottom = ovira.rect.top
                 self.hitrost_y = 0
 
+class nevarnost(pygame.sprite.Sprite):
+    def __init__(self, x, y, s, v, perioda = False, premika = True):
+        super().__init__()
+        self.premika = premika
+        self.perioda = perioda
+        self.image = pygame.Surface((s, v), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.images = pygame.image.load("znak3.png")
+        self.nastavi_sliko()
+        
+    def nastavi_sliko(self):
+        self.image.fill((0, 0, 0, 0))
+        self.image.blit(self.images, (0, 0),(0, 0, 96, 150))
+
+    def update(self):
+        if self.premika:
+            self.rect.x -= HITROST
+            if self.perioda:
+                if self.rect.x < -self.perioda:
+                    self.rect.x = SIRINA_EKRANA - HITROST
+        
+
         
 class level(pygame.sprite.Sprite):
     
@@ -132,6 +155,9 @@ def main():
     papiga = Medo(tla)
     ljudje.add(papiga)
 
+    nevarnosti = pygame.sprite.Group()
+    nevarnosti.add(nevarnost(200, 340, 96, 150, 1000))
+
     konec_zanke = False
     ura = pygame.time.Clock()
     while not konec_zanke:
@@ -162,10 +188,12 @@ def main():
         #Fizika
         ljudje.update()
         tla.update()
+        nevarnosti.update()
         #Risanje
         ekran.fill((100,180,230))
         tla.draw(ekran)
         ljudje.draw(ekran)
+        nevarnosti.draw(ekran)
         pygame.display.flip()
     pygame.quit()        
         
