@@ -39,14 +39,17 @@ class Medo(pygame.sprite.Sprite):
 
         if self.ovire:
             trki = pygame.sprite.spritecollide(self, self.ovire, False)
-
             for ovira in trki:
                 diff = self.rect.right - ovira.rect.left
                 for ov in self.ovire:
-                    ov.rect.x += diff
+                    if ov.premika:
+                        ov.rect.x += diff
             
         self.hitrost_y +=0.4
         self.rect.y += self.hitrost_y
+##        if self.rect.bottom > 500:
+##            self.hitrost_y=0
+##            self.rect.bottom = 500
        ## self.rect.y %= VISINA_EKRANA
         if self.ovire:
             trki = pygame.sprite.spritecollide(self, self.ovire, False)
@@ -60,16 +63,31 @@ class Medo(pygame.sprite.Sprite):
         
 class level(pygame.sprite.Sprite):
     
-    def __init__(self, x, y, s, v):
+    def __init__(self, x, y, s, v, perioda=False, premika=True, slika=None):
         super().__init__()
+        self.premika = premika
+        self.perioda = perioda
         self.image = pygame.Surface((s, v))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.image.fill((50,150,50))
+        self.images = pygame.image.load("tla2.png")
+
+        self.nastavi_sliko()
+        
+    def nastavi_sliko(self):
+        self.image.fill((0, 0, 0, 0))
+        self.image.blit(self.images, (0, 0),(0, 0, 1150, 110))
+
 
     def update(self):
-        self.rect.x -= HITROST
+        if self.premika:
+            self.rect.x -= HITROST
+            if self.perioda:
+                if self.rect.x < -self.perioda:
+                    self.rect.x = SIRINA_EKRANA - HITROST
+                    
 
         
 
@@ -81,7 +99,14 @@ def main():
     premik = 1
     
     tla = pygame.sprite.Group()
-    tla.add(level(0,500,8000,100), level(500, 400, 200, 100), level(900, 400, 200, 100), level(1200, 300, 200, 50), level(1500, 300, 200, 50))
+    tla.add(
+        level(0, 490, SIRINA_EKRANA, VISINA_EKRANA, SIRINA_EKRANA),
+        level(SIRINA_EKRANA, 490, SIRINA_EKRANA, VISINA_EKRANA, SIRINA_EKRANA),
+        level(500, 400, 200, 90, 2000),
+        level(900, 400, 200, 90, 2000),
+        level(1300, 300, 200, 50),
+        level(1600, 300, 200, 50),
+        level(2000, 200, 400, 290))
     ljudje = pygame.sprite.Group()
     papiga = Medo(tla)
     ljudje.add(papiga)
