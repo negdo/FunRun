@@ -5,10 +5,11 @@ VISINA_EKRANA = 600
 
 HITROST = 4
 class Medo(pygame.sprite.Sprite):
-    def __init__(self, ovire = None):
+    def __init__(self, ovire = None, ovire2 = None):
         
         super().__init__()
         self.ovire = ovire
+        self.ovire2 = ovire2
         sirina = 72
         visina = 109
         self.image = pygame.Surface((sirina,visina), pygame.SRCALPHA)
@@ -35,8 +36,6 @@ class Medo(pygame.sprite.Sprite):
             self.hitrost_y = -10
 
 
-
-
     def levo(self):
         self.hitrost_x = -3
 
@@ -45,11 +44,7 @@ class Medo(pygame.sprite.Sprite):
 
     def stop(self):
         self.hitrost_x = 0
-
-
-        
-
-        
+  
 
     def update(self):
 
@@ -58,13 +53,15 @@ class Medo(pygame.sprite.Sprite):
         if self.ovire:
             trki = pygame.sprite.spritecollide(self, self.ovire, False)
             for ovira in trki:
-                diff = self.rect.right - ovira.rect.left
-                for ov in self.ovire:
-                    if ov.premika:                       
-                        self.hitrost_x = 0
-                        self.rect.x -= 0.2
-                        
-                        #ov.rect.x += diff
+                # diff = self.rect.right - ovira.rect.left
+                self.rect.right = ovira.rect.left
+                self.hitrost_x = 0
+        if self.ovire2:
+            trki2 = pygame.sprite.spritecollide(self, self.ovire2, False)
+            for ovira in trki2:                     
+                pygame.quit()
+                print("Boom")
+                
             
         self.hitrost_y +=0.4
         self.rect.y += self.hitrost_y
@@ -81,6 +78,16 @@ class Medo(pygame.sprite.Sprite):
                     self.rect.bottom = ovira.rect.top
                 self.hitrost_y = 0
 
+
+        if self.ovire2:
+            trki2 = pygame.sprite.spritecollide(self, self.ovire, False)
+            for ovira in trki2:
+                pygame.quit()
+
+
+
+
+
 class nevarnost(pygame.sprite.Sprite):
     def __init__(self, x, y, s, v, perioda = False, premika = True):
         super().__init__()
@@ -90,12 +97,12 @@ class nevarnost(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.images = pygame.image.load("znak3.png")
+        self.images = pygame.image.load("znak4.png")
         self.nastavi_sliko()
         
     def nastavi_sliko(self):
         self.image.fill((0, 0, 0, 0))
-        self.image.blit(self.images, (0, 0),(0, 0, 96, 150))
+        self.image.blit(self.images, (0, 0),(0, 0, 54, 85))
 
     def update(self):
         if self.premika:
@@ -147,16 +154,17 @@ def main():
     tla.add(
         level(0, 490, SIRINA_EKRANA, VISINA_EKRANA, SIRINA_EKRANA),
         level(SIRINA_EKRANA, 490, SIRINA_EKRANA, VISINA_EKRANA, SIRINA_EKRANA),
-        level(500, 400, 200, 90, 2000),
-        level(900, 400, 200, 90, 2000),
-        level(1300, 300, 200, 50),
-        level(1600, 300, 200, 50))
+        level(500, 450, 200, 90, 2000),
+        level(900, 450, 200, 90, 2000),
+        level(1300, 300, 200, 50, 1300),
+        level(1600, 300, 200, 50, 1300))
     ljudje = pygame.sprite.Group()
-    papiga = Medo(tla)
+    nevarnosti = pygame.sprite.Group()
+    nevarnosti.add(nevarnost(700, 405, 54, 85, 1000))
+
+    papiga = Medo(tla, nevarnosti)
     ljudje.add(papiga)
 
-    nevarnosti = pygame.sprite.Group()
-    nevarnosti.add(nevarnost(200, 340, 96, 150, 1000))
 
     konec_zanke = False
     ura = pygame.time.Clock()
